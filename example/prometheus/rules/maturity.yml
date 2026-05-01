@@ -1,0 +1,56 @@
+groups:
+  - name: maturity_score
+    rules:
+      # Score de cada scorecard (redistribui pesos automaticamente entre métricas que rodaram)
+      - record: maturity:scorecard_score
+        expr: |
+          sum(maturity_score * maturity_applicable * maturity_weight) by (area, team, app, env, scorecard)
+          /
+          sum(maturity_applicable * maturity_weight) by (area, team, app, env, scorecard)
+
+      # Score total da aplicação (usa os scorecard_weight definidos)
+      # Nota: os pesos dos scorecards estão fixos; ajuste as constantes conforme weights.py
+      - record: maturity:total_score
+        expr: |
+          sum by (area, team, app, env) (maturity:scorecard_score{scorecard="security"})    * 0.35
+          +
+          sum by (area, team, app, env) (maturity:scorecard_score{scorecard="application"}) * 0.25
+          +
+          sum by (area, team, app, env) (maturity:scorecard_score{scorecard="reliability"}) * 0.40
+
+      # Score médio por time (média dos apps do time)
+      - record: maturity:team_score
+        expr: |
+          avg(maturity:total_score) by (area, team, env)
+
+      # Score médio por área (média dos times da área — cada time tem peso igual)
+      - record: maturity:area_score
+        expr: |
+          avg(maturity:team_score) by (area, env)
+
+      # Score médio por scorecard por time (média dos apps do time, mantém scorecard)
+      - record: maturity:team_scorecard_score
+        expr: |
+          avg(maturity:scorecard_score) by (area, team, env, scorecard)
+
+      # Score médio por scorecard por área (média dos times, mantém scorecard)
+      - record: maturity:area_scorecard_score
+        expr: |
+          avg(maturity:team_scorecard_score) by (area, env, scorecard)
+
+  - name: maturity_problems
+    rules:
+      # Total de problemas abertos por área (para dashboard de atividades de correção)
+      - record: maturity:problems_by_area
+        expr: |
+          sum(maturity_problem_count) by (area, problem_type, severity)
+
+      # Total de problemas abertos por time
+      - record: maturity:problems_by_team
+        expr: |
+          sum(maturity_problem_count) by (area, team, problem_type, severity)
+
+      # Apps com pelo menos 1 problema aberto (para listar os que precisam de ação)
+      - record: maturity:apps_with_problems
+        expr: |
+          count(maturity_problem_count > 0) by (area, team, problem_type, severity)
