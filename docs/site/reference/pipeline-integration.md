@@ -8,6 +8,7 @@ AREA="financial"
 TEAM="payments"
 APP="payments-api"
 ENV="prod"
+PROJECT_REPO="org/payments-api"   # optional — links the score to its source repo
 ```
 
 ---
@@ -32,7 +33,8 @@ curl -sf -X POST "$MATURITY_API/score" \
       \"critical\": 0,
       \"high\": 1,
       \"medium\": 3
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -56,7 +58,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"secret_scan\",
     \"raw\": {
       \"found\": false
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -82,7 +85,8 @@ curl -sf -X POST "$MATURITY_API/score" \
       \"critical\": 0,
       \"high\": 2,
       \"medium\": 5
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -108,7 +112,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"raw\": {
       \"high\": 0,
       \"medium\": 1
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -134,7 +139,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"libs_secrets\",
     \"raw\": {
       \"enabled\": true
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -158,7 +164,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"libs_observability\",
     \"raw\": {
       \"enabled\": true
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -182,7 +189,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"unique_db_user\",
     \"raw\": {
       \"enabled\": true
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -207,7 +215,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"health_check\",
     \"raw\": {
       \"enabled\": true
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -231,7 +240,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"unit_coverage\",
     \"raw\": {
       \"percentage\": 82
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -255,7 +265,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"integration_coverage\",
     \"raw\": {
       \"percentage\": 65
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -282,7 +293,8 @@ curl -sf -X POST "$MATURITY_API/score" \
       \"error_rate\": 0.002,
       \"p95_ms\": 420,
       \"checks_pct\": 97
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -308,7 +320,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"sla\",
     \"raw\": {
       \"availability_pct\": 99.85
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -332,7 +345,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"change_failure_rate\",
     \"raw\": {
       \"rate_pct\": 3
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -356,7 +370,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"mttr\",
     \"raw\": {
       \"minutes\": 45
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -380,7 +395,8 @@ curl -sf -X POST "$MATURITY_API/score" \
     \"metric\": \"mttd\",
     \"raw\": {
       \"minutes\": 4
-    }
+    },
+    \"project_repo\": \"$PROJECT_REPO\"
   }"
 ```
 
@@ -497,7 +513,8 @@ done
         \"scorecard\": \"security\",
         \"metric\": \"image_scan\",
         \"raw\": {\"critical\": 0, \"high\": 0, \"medium\": 2},
-        \"pipeline_id\": \"${{ github.run_id }}\"
+        \"pipeline_id\": \"${{ github.run_id }}\",
+        \"project_repo\": \"${{ github.repository }}\"
       }"
 ```
 
@@ -518,6 +535,7 @@ submit-maturity-score:
           \"scorecard\": \"security\",
           \"metric\": \"image_scan\",
           \"raw\": {\"critical\": 0, \"high\": 0, \"medium\": 2},
-          \"pipeline_id\": \"$CI_PIPELINE_ID\"
+          \"pipeline_id\": \"$CI_PIPELINE_ID\",
+          \"project_repo\": \"$CI_PROJECT_PATH\"
         }"
 ```
