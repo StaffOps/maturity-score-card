@@ -235,8 +235,13 @@ These are recognised gaps rather than deliberate omissions. Submitting them toda
 |---|---|---|
 | Deployment success rate / frequency | Not implemented | `change_failure_rate` captures the inverse for failures, but neither deploy volume nor success count is scored |
 | Rollback success rate | Not implemented | Whether rollbacks actually work is untracked |
-| Vulnerability remediation time | Partially covered | `POST /problem/scan-result` keeps findings until resolved, so the history exists — but there is no scorer turning time-to-remediate into a number |
+| Vulnerability remediation time | Not computable today | The `problems` table keeps a mutable `count` and an `updated_at` that is overwritten on every scan — there is no `first_seen` and no `resolved_at`, so how long a finding stayed open is not recoverable from the database. The `maturity_problem_count` series in Prometheus shows the count falling to zero, but only within its retention window |
 | Production 5xx error rate | Partially covered | `stress_test.error_rate` measures errors under synthetic load, not real traffic. A production error-rate SLI currently has to be folded into `sla` |
+
+All four are specified in
+[`specs/delivery-and-remediation-metrics/`](https://github.com/StaffOps/maturity-score-card/tree/main/specs/delivery-and-remediation-metrics),
+including the weight rebalance that adds them to `reliability` without moving any existing
+app's score.
 
 ## Adding a metric
 
