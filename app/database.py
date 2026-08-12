@@ -18,18 +18,23 @@ def init_db() -> None:
         with conn.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS metric_scores (
-                    area        TEXT NOT NULL,
-                    team        TEXT NOT NULL,
-                    app         TEXT NOT NULL,
-                    env         TEXT NOT NULL,
-                    scorecard   TEXT NOT NULL,
-                    metric      TEXT NOT NULL,
-                    score       FLOAT NOT NULL,
-                    weight      FLOAT NOT NULL,
-                    raw         JSONB NOT NULL DEFAULT '{}',
-                    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+                    area         TEXT NOT NULL,
+                    team         TEXT NOT NULL,
+                    app          TEXT NOT NULL,
+                    env          TEXT NOT NULL,
+                    scorecard    TEXT NOT NULL,
+                    metric       TEXT NOT NULL,
+                    score        FLOAT NOT NULL,
+                    weight       FLOAT NOT NULL,
+                    raw          JSONB NOT NULL DEFAULT '{}',
+                    project_repo TEXT,
+                    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
                     PRIMARY KEY (area, team, app, env, scorecard, metric)
                 )
+            """)
+            cur.execute("""
+                ALTER TABLE metric_scores
+                ADD COLUMN IF NOT EXISTS project_repo TEXT
             """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS problems (
@@ -58,16 +63,17 @@ def get_conn():
 
 
 def upsert_score(area: str, team: str, app: str, env: str,
-                 scorecard: str, metric: str, score: float, weight: float, raw: dict) -> None:
+                 scorecard: str, metric: str, score: float, weight: float, raw: dict,
+                 project_repo: str | None = None) -> None:
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO metric_scores (area, team, app, env, scorecard, metric, score, weight, raw, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+                INSERT INTO metric_scores (area, team, app, env, scorecard, metric, score, weight, raw, project_repo, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                 ON CONFLICT (area, team, app, env, scorecard, metric)
                 DO UPDATE SET score=EXCLUDED.score, weight=EXCLUDED.weight,
-                              raw=EXCLUDED.raw, updated_at=now()
-            """, (area, team, app, env, scorecard, metric, score, weight, json.dumps(raw)))
+                              raw=EXCLUDED.raw, project_repo=EXCLUDED.project_repo, updated_at=now()
+            """, (area, team, app, env, scorecard, metric, score, weight, json.dumps(raw), project_repo))
         conn.commit()
 
 
@@ -88,8 +94,29 @@ def get_all_scores() -> list[tuple]:
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT area, team, app, env, scorecard, metric, score, weight, raw
+                SELECT area, team, app, env, scorecard, metric, score, weight, raw, project_repo
                 FROM metric_scores
+            """)
+            return cur.fetchall()
+
+
+def get_project_repos() -> list[tuple]:
+    """One row per app: (area, team, app, env, project_repo).
+
+    project_repo is stored per metric, so an app can end up with divergent values
+    when only some pipeline steps send it. Collapsing to a single row here keeps
+    maturity_project_info at exactly one series per app, which is what the
+    group_left joins in the recording rules require.
+    """
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT DISTINCT ON (area, team, app, env)
+                       area, team, app, env, COALESCE(project_repo, '')
+                FROM metric_scores
+                ORDER BY area, team, app, env,
+                         (project_repo IS NOT NULL AND project_repo <> '') DESC,
+                         updated_at DESC
             """)
             return cur.fetchall()
 

@@ -12,6 +12,7 @@ def push_metrics(request: ScoreRequest, score: float) -> None:
         upsert_score(
             request.area, request.team, request.app, request.env,
             request.scorecard, request.metric, score, weight, request.raw,
+            request.project_repo,
         )
     except Exception:
         logger.exception("failed to save score to database")

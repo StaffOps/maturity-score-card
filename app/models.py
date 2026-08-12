@@ -10,3 +10,4 @@ class ScoreRequest(BaseModel):
     metric: str
     raw: dict
     pipeline_id: str | None = None
+    project_repo: str | None = None

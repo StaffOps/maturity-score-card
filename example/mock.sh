@@ -23,7 +23,7 @@ post_score() {
   local result score
   result=$(curl -sf -X POST "$BASE_URL/score" \
     -H "Content-Type: application/json" \
-    -d "{\"area\":\"$area\",\"team\":\"$team\",\"app\":\"$app\",\"env\":\"$ENV\",\"scorecard\":\"$scorecard\",\"metric\":\"$metric\",\"raw\":$raw}" 2>/dev/null || echo '{"score":0}')
+    -d "{\"area\":\"$area\",\"team\":\"$team\",\"app\":\"$app\",\"env\":\"$ENV\",\"scorecard\":\"$scorecard\",\"metric\":\"$metric\",\"raw\":$raw,\"project_repo\":\"$area/$app\"}" 2>/dev/null || echo '{"score":0}')
   score=$(echo "$result" | grep -o '"score":[0-9.]*' | cut -d: -f2)
   printf "    ${GREEN}✓${NC} %-15s %-25s score=${CYAN}%-6s${NC}\n" "$scorecard" "$metric" "$score"
 }

@@ -1,18 +1,18 @@
 from prometheus_client import CollectorRegistry, Gauge, generate_latest
-from app.database import get_all_scores, get_all_problems
+from app.database import get_all_scores, get_all_problems, get_project_repos
 
 
 def build_metrics() -> bytes:
     registry = CollectorRegistry()
 
-    score_labels = ["area", "team", "app", "env", "scorecard", "metric"]
+    score_labels = ["area", "team", "app", "env", "scorecard", "metric", "project_repo"]
     g_score      = Gauge("maturity_score",      "Computed maturity score (0-100)",        score_labels,             registry=registry)
     g_applicable = Gauge("maturity_applicable", "1 if metric was evaluated in pipeline",  score_labels,             registry=registry)
     g_weight     = Gauge("maturity_weight",     "Metric weight within its scorecard",      score_labels,             registry=registry)
     g_raw        = Gauge("maturity_raw",        "Raw input value",                         score_labels + ["field"], registry=registry)
 
-    for area, team, app, env, scorecard, metric, score, weight, raw in get_all_scores():
-        lv = [area, team, app, env, scorecard, metric]
+    for area, team, app, env, scorecard, metric, score, weight, raw, project_repo in get_all_scores():
+        lv = [area, team, app, env, scorecard, metric, project_repo or ""]
         g_score.labels(*lv).set(score)
         g_applicable.labels(*lv).set(1)
         g_weight.labels(*lv).set(weight)
@@ -22,6 +22,14 @@ def build_metrics() -> bytes:
                     g_raw.labels(*lv, field).set(1.0 if value else 0.0)
                 elif isinstance(value, (int, float)):
                     g_raw.labels(*lv, field).set(float(value))
+
+    # Info metric: exactly one series per app, joined via group_left in the recording
+    # rules so project_repo never participates in score arithmetic.
+    info_labels = ["area", "team", "app", "env", "project_repo"]
+    g_info = Gauge("maturity_project_info", "Source repository of an app (always 1)", info_labels, registry=registry)
+
+    for area, team, app, env, project_repo in get_project_repos():
+        g_info.labels(area, team, app, env, project_repo).set(1)
 
     prob_labels = ["area", "team", "app", "env", "problem_type", "severity"]
     g_prob = Gauge("maturity_problem_count", "Number of open problems (0 = clean)", prob_labels, registry=registry)

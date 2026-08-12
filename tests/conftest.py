@@ -9,6 +9,7 @@ def client():
          patch("app.database.upsert_score"), \
          patch("app.database.upsert_problem"), \
          patch("app.metrics.get_all_scores", return_value=[]), \
+         patch("app.metrics.get_project_repos", return_value=[]), \
          patch("app.metrics.get_all_problems", return_value=[]):
         from app.main import app
         yield TestClient(app)

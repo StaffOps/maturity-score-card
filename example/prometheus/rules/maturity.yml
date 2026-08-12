@@ -1,22 +1,33 @@
 groups:
   - name: maturity_score
     rules:
-      # Score de cada scorecard (redistribui pesos automaticamente entre métricas que rodaram)
+      # Score de cada scorecard (redistribui pesos automaticamente entre métricas que rodaram).
+      #
+      # project_repo NÃO entra no by(): ele é opcional por métrica, então um app que
+      # envia o campo em alguns steps e não em outros geraria séries duplicadas aqui e
+      # quebraria a soma em maturity:total_score. O label é reanexado no fim via
+      # group_left contra maturity_project_info, que tem exatamente 1 série por app.
       - record: maturity:scorecard_score
         expr: |
-          sum(maturity_score * maturity_applicable * maturity_weight) by (area, team, app, env, scorecard)
-          /
-          sum(maturity_applicable * maturity_weight) by (area, team, app, env, scorecard)
+          (
+            sum(maturity_score * maturity_applicable * maturity_weight) by (area, team, app, env, scorecard)
+            /
+            sum(maturity_applicable * maturity_weight) by (area, team, app, env, scorecard)
+          )
+          * on (area, team, app, env) group_left (project_repo) maturity_project_info
 
       # Score total da aplicação (usa os scorecard_weight definidos)
       # Nota: os pesos dos scorecards estão fixos; ajuste as constantes conforme weights.py
       - record: maturity:total_score
         expr: |
-          sum by (area, team, app, env) (maturity:scorecard_score{scorecard="security"})    * 0.35
-          +
-          sum by (area, team, app, env) (maturity:scorecard_score{scorecard="application"}) * 0.25
-          +
-          sum by (area, team, app, env) (maturity:scorecard_score{scorecard="reliability"}) * 0.40
+          (
+            sum by (area, team, app, env) (maturity:scorecard_score{scorecard="security"})    * 0.35
+            +
+            sum by (area, team, app, env) (maturity:scorecard_score{scorecard="application"}) * 0.25
+            +
+            sum by (area, team, app, env) (maturity:scorecard_score{scorecard="reliability"}) * 0.40
+          )
+          * on (area, team, app, env) group_left (project_repo) maturity_project_info
 
       # Score médio por time (média dos apps do time)
       - record: maturity:team_score

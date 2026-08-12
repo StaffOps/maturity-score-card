@@ -34,6 +34,7 @@ def submit_score(payload: ScoreRequest):
         "scorecard": payload.scorecard,
         "metric": payload.metric,
         "score": round(score, 2),
+        "project_repo": payload.project_repo,
     }
 
 

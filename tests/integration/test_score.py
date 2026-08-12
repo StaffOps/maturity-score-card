@@ -105,11 +105,27 @@ class TestMetricsEndpoint:
 
     def test_metrics_includes_scores_from_db(self, client):
         from unittest.mock import patch
-        row = ("fin", "pay", "api", "prod", "security", "image_scan", 95.0, 0.25, {"critical": 0})
+        row = ("fin", "pay", "api", "prod", "security", "image_scan", 95.0, 0.25, {"critical": 0}, "org/api")
         with patch("app.metrics.get_all_scores", return_value=[row]):
             r = client.get("/metrics")
         assert "maturity_score" in r.text
         assert 'scorecard="security"' in r.text
+        assert 'project_repo="org/api"' in r.text
+
+    def test_metrics_emits_one_project_info_series_per_app(self, client):
+        """project_repo divergente entre métricas não pode duplicar maturity_project_info,
+        senão o group_left das recording rules quebra com duplicate series."""
+        from unittest.mock import patch
+        scores = [
+            ("fin", "pay", "api", "prod", "security", "image_scan", 95.0, 0.25, {}, "org/api"),
+            ("fin", "pay", "api", "prod", "reliability", "sla", 80.0, 0.20, {}, None),
+        ]
+        info = [("fin", "pay", "api", "prod", "org/api")]
+        with patch("app.metrics.get_all_scores", return_value=scores), \
+             patch("app.metrics.get_project_repos", return_value=info):
+            r = client.get("/metrics")
+        assert r.text.count("maturity_project_info{") == 1
+        assert 'maturity_project_info{app="api",area="fin",env="prod",project_repo="org/api",team="pay"} 1.0' in r.text
 
     def test_metrics_includes_problems_from_db(self, client):
         from unittest.mock import patch
