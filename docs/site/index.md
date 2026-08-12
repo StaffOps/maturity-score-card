@@ -2,7 +2,7 @@
 
 **Stateless scoring service for CI/CD maturity metrics.**
 
-Receives CI/CD tool results, computes a 0–100 maturity score per metric, and persists state in PostgreSQL. Metrics are scraped by VictoriaMetrics and visualized in Grafana.
+Receives CI/CD tool results, computes a 0–100 maturity score per metric, and persists state in PostgreSQL. Metrics are scraped by Prometheus and visualized in Grafana.
 
 ---
 
@@ -22,10 +22,10 @@ calculate_score()        save problem state
           PostgreSQL  ◄──── upsert (state persists until next scan)
                │
                ▼
-          GET /metrics  ◄──── VictoriaMetrics scrapes every 15s
+          GET /metrics  ◄──── Prometheus scrapes every 15s
                │
                ▼
-          vmalert  ──── evaluates recording rules ──► VictoriaMetrics
+          Prometheus  ──── evaluates PromQL recording rules
                │
                ▼
             Grafana
@@ -39,8 +39,7 @@ calculate_score()        save problem state
 |---|---|
 | FastAPI | REST API — scoring + problem intake |
 | PostgreSQL | State store — latest score and problem count per app |
-| VictoriaMetrics | Time series database — scrapes `/metrics` |
-| vmalert | Evaluates PromQL recording rules |
+| Prometheus | Time series database — scrapes `/metrics` and evaluates recording rules |
 | Grafana | Dashboards |
 
 ---

@@ -42,7 +42,7 @@ Sends a Slack alert when `count > 0` if `SLACK_BOT_TOKEN` is set.
 
 ## `GET /metrics`
 
-Prometheus-format metrics endpoint scraped by VictoriaMetrics.
+Prometheus-format metrics endpoint scraped by Prometheus.
 
 ## `GET /healthz`
 

@@ -1,6 +1,6 @@
 # maturity-score-card
 
-A stateless FastAPI service that receives CI/CD tool results, computes maturity scores (0–100) per metric, and persists state in PostgreSQL. Metrics are scraped by VictoriaMetrics and visualized in Grafana.
+A stateless FastAPI service that receives CI/CD tool results, computes maturity scores (0–100) per metric, and persists state in PostgreSQL. Metrics are scraped by Prometheus and visualized in Grafana.
 
 ## Architecture
 
@@ -18,10 +18,10 @@ calculate_score()        save problem state
           PostgreSQL  ◄──── upsert (state persists until next scan)
                │
                ▼
-          GET /metrics  ◄──── VictoriaMetrics scrapes every 15s
+          GET /metrics  ◄──── Prometheus scrapes every 15s
                │
                ▼
-          vmalert  ──── evaluates recording rules ──► VictoriaMetrics
+          Prometheus  ──── evaluates PromQL recording rules
                │
                ▼
             Grafana
@@ -33,13 +33,12 @@ calculate_score()        save problem state
 |---|---|
 | FastAPI | REST API — scoring + problem intake |
 | PostgreSQL | State store — latest score and problem count per app |
-| VictoriaMetrics | Time series database — scrapes `/metrics` |
-| vmalert | Evaluates PromQL recording rules |
+| Prometheus | Time series database — scrapes `/metrics` and evaluates recording rules |
 | Grafana | Dashboards |
 
 ## Quick start
 
-The `example/` directory contains a full local environment with VictoriaMetrics, vmalert, Grafana, and PostgreSQL.
+The `example/` directory contains a full local environment with Prometheus, Grafana, and PostgreSQL.
 
 ```bash
 cd example
@@ -67,16 +66,20 @@ curl http://localhost:8080/metrics
 bash mock.sh
 ```
 
-Grafana is available at [http://localhost:3000](http://localhost:3000) (admin / admin).
+Grafana is available at [http://localhost:3000](http://localhost:3000) (admin / admin) and Prometheus at [http://localhost:9090](http://localhost:9090).
+
+The dashboard uses Grafana's Dashboard Schema V2, which the file provisioner rejects. The `grafana-dashboard-loader` service pushes it through the resource API instead, so it appears a few seconds after Grafana starts.
 
 ### example/ contents
 
 | Path | Description |
 |---|---|
-| `docker-compose.yml` | Full local stack (API, PostgreSQL, VictoriaMetrics, vmalert, Grafana) |
-| `prometheus/rules/` | vmalert recording rules |
-| `prometheus/scrape.yml` | VictoriaMetrics scrape config |
-| `grafana/` | Provisioned datasource and dashboard |
+| `docker-compose.yml` | Full local stack (API, PostgreSQL, Prometheus, Grafana) |
+| `prometheus/prometheus.yml` | Prometheus scrape config and rule file discovery |
+| `prometheus/rules/` | PromQL recording rules |
+| `grafana/provisioning/` | Provisioned Prometheus datasource |
+| `grafana/dashboards/maturity.json` | Dashboard (Schema V2, 3 tabs) — source of truth |
+| `grafana/push-dashboard.py` | Pushes the V2 dashboard via the Grafana resource API |
 | `mock.sh` | Populates all areas/teams/apps with varied scores and problems |
 | `mock_warehouse.sh` | Warehouse team sample data with quality evolution snapshots |
 | `mock_problems.sh` | Simulates a scan round: resolves existing problems, opens new ones |
@@ -93,7 +96,7 @@ Weights redistribute automatically among metrics that actually ran — just omit
 
 ## Pipeline integration
 
-See **[docs/pipeline-curl-examples.md](docs/pipeline-curl-examples.md)** for one curl example per metric, including scoring rules, partial evaluation patterns, and GitHub Actions / GitLab CI snippets.
+See **[docs/site/reference/pipeline-integration.md](docs/site/reference/pipeline-integration.md)** for one curl example per metric, including scoring rules, partial evaluation patterns, and GitHub Actions / GitLab CI snippets.
 
 ## API endpoints
 
@@ -110,7 +113,8 @@ Submits a metric result for a single app.
   "scorecard": "security",
   "metric": "image_scan",
   "raw": {"critical": 0, "high": 1, "medium": 3},
-  "pipeline_id": "ci-456"
+  "pipeline_id": "ci-456",
+  "project_repo": "org/payments-api"
 }
 ```
 
@@ -138,7 +142,7 @@ Sends a Slack alert when `count > 0` if `SLACK_BOT_TOKEN` is set.
 
 ### `GET /metrics`
 
-Prometheus-format metrics endpoint scraped by VictoriaMetrics.
+Prometheus-format metrics endpoint scraped by Prometheus.
 
 ### `GET /healthz`
 
@@ -148,13 +152,14 @@ Health check.
 
 | Metric | Description | Labels |
 |---|---|---|
-| `maturity_score` | Computed score (0–100) | area, team, app, env, scorecard, metric |
-| `maturity_applicable` | 1 if metric ran in this pipeline | area, team, app, env, scorecard, metric |
-| `maturity_weight` | Metric weight within its scorecard | area, team, app, env, scorecard, metric |
-| `maturity_raw` | Raw input value per field | area, team, app, env, scorecard, metric, field |
+| `maturity_score` | Computed score (0–100) | area, team, app, env, scorecard, metric, project_repo |
+| `maturity_applicable` | 1 if metric ran in this pipeline | area, team, app, env, scorecard, metric, project_repo |
+| `maturity_weight` | Metric weight within its scorecard | area, team, app, env, scorecard, metric, project_repo |
+| `maturity_raw` | Raw input value per field | area, team, app, env, scorecard, metric, project_repo, field |
 | `maturity_problem_count` | Open problems (0 = clean) | area, team, app, env, problem_type, severity |
+| `maturity_project_info` | Source repo of an app, always `1` — join target for `group_left` | area, team, app, env, project_repo |
 
-## Recording rules (vmalert)
+## Recording rules (PromQL)
 
 | Metric | Description |
 |---|---|

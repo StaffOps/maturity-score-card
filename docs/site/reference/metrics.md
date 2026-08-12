@@ -9,8 +9,9 @@
 | `maturity_weight` | Metric weight within its scorecard | area, team, app, env, scorecard, metric, project_repo |
 | `maturity_raw` | Raw input value per field | area, team, app, env, scorecard, metric, project_repo, field |
 | `maturity_problem_count` | Open problems (0 = clean) | area, team, app, env, problem_type, severity |
+| `maturity_project_info` | Source repo of an app, always `1` — join target for `group_left` | area, team, app, env, project_repo |
 
-## Recording rules (vmalert)
+## Recording rules (PromQL)
 
 | Metric | Description |
 |---|---|
