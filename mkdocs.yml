@@ -43,6 +43,7 @@ nav:
   - Getting Started:
       - Quickstart: getting-started/quickstart.md
   - Scorecards: scorecards.md
+  - Roadmap: roadmap.md
   - Reference:
       - API: reference/api.md
       - Metrics & Recording Rules: reference/metrics.md

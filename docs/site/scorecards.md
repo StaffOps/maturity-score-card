@@ -238,10 +238,10 @@ These are recognised gaps rather than deliberate omissions. Submitting them toda
 | Vulnerability remediation time | Not computable today | The `problems` table keeps a mutable `count` and an `updated_at` that is overwritten on every scan — there is no `first_seen` and no `resolved_at`, so how long a finding stayed open is not recoverable from the database. The `maturity_problem_count` series in Prometheus shows the count falling to zero, but only within its retention window |
 | Production 5xx error rate | Partially covered | `stress_test.error_rate` measures errors under synthetic load, not real traffic. A production error-rate SLI currently has to be folded into `sla` |
 
-All four are specified in
-[`specs/delivery-and-remediation-metrics/`](https://github.com/StaffOps/maturity-score-card/tree/main/specs/delivery-and-remediation-metrics),
-including the weight rebalance that adds them to `reliability` without moving any existing
-app's score.
+Deploy success, rollback success and production 5xx rate are being surfaced as Grafana panels
+rather than scored — see [scored vs shown](roadmap.md#scored-vs-shown) for the reasoning.
+Vulnerability remediation time is specified and will be scored, because it is the one signal a
+dashboard cannot solve. The full picture is on the [roadmap](roadmap.md).
 
 ## Adding a metric
 
