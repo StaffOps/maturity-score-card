@@ -9,7 +9,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      victoriametrics:
+      prometheus:
         condition: service_started
 
   postgres:
@@ -28,30 +28,19 @@ services:
       timeout: 5s
       retries: 5
 
-  victoriametrics:
-    image: victoriametrics/victoria-metrics:latest
+  prometheus:
+    image: prom/prometheus:latest
     ports:
-      - "8428:8428"
+      - "9090:9090"
     volumes:
-      - victoriametrics_data:/victoria-metrics-data
-      - ./prometheus/scrape.yml:/etc/victoriametrics/scrape.yml:ro
+      - prometheus_data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
     command:
-      - -storageDataPath=/victoria-metrics-data
-      - -httpListenAddr=:8428
-      - -promscrape.config=/etc/victoriametrics/scrape.yml
-
-  vmalert:
-    image: victoriametrics/vmalert:latest
-    volumes:
-      - ./prometheus/rules:/etc/vmalert/rules:ro
-    command:
-      - -rule=/etc/vmalert/rules/*.yml
-      - -datasource.url=http://victoriametrics:8428
-      - -remoteWrite.url=http://victoriametrics:8428
-      - -evaluationInterval=15s
-      - -httpListenAddr=:8880
-    depends_on:
-      - victoriametrics
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.listen-address=:9090
+      - --web.enable-lifecycle
 
   grafana:
     image: grafana/grafana:latest
@@ -66,9 +55,9 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana_data:/var/lib/grafana
     depends_on:
-      - victoriametrics
+      - prometheus
 
 volumes:
-  victoriametrics_data:
+  prometheus_data:
   grafana_data:
   postgres_data:
