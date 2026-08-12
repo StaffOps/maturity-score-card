@@ -16,7 +16,7 @@ Fifteen metrics ship in the box, covering SLA/availability, change failure rate,
 
 Findings that need fixing (not just scoring) go to `POST /problem/scan-result`, which keeps them with file and line detail until a later scan reports zero, and alerts Slack when something new appears.
 
-See **[Scorecards](docs/site/scorecards.md)** for every metric's payload and thresholds, including [signals not covered yet](docs/site/scorecards.md#not-yet-covered).
+See **[Scorecards](docs/site/scorecards.md)** for every metric's payload and thresholds, and the **[Roadmap](docs/site/roadmap.md)** for what is specified next, what is deliberately a dashboard panel rather than a scored metric, and what is not planned.
 
 A stateless FastAPI service; all state lives in PostgreSQL. Metrics are scraped by Prometheus and visualized in Grafana.
 

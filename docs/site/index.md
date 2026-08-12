@@ -83,7 +83,8 @@ Fifteen metrics ship in the box. Each has a scoring function that turns a raw pa
     integration coverage both earn full marks, because they are not equally cheap to reach.
 
 See **[Scorecards](scorecards.md)** for the exact thresholds behind every metric, and the
-[roadmap](scorecards.md#not-yet-covered) for signals that are not scored yet.
+[roadmap](roadmap.md) for what is specified, what is deliberately a dashboard panel instead,
+and what is not planned.
 
 ## Tracking problems, not just scoring them
 
