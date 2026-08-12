@@ -1,6 +1,24 @@
 # maturity-score-card
 
-A stateless FastAPI service that receives CI/CD tool results, computes maturity scores (0–100) per metric, and persists state in PostgreSQL. Metrics are scraped by Prometheus and visualized in Grafana.
+**A single 0–100 number for how well an application is built, shipped, and run.**
+
+Test coverage lives in one tool, vulnerabilities in another, availability in a dashboard, incident response in a spreadsheet. This service collects those signals wherever they already exist, scores each on the same 0–100 scale, and rolls them up per app, per team, and per area.
+
+It is not a CI/CD scorecard — pipelines are one source of signal among several, and the heaviest scorecard measures what happens *after* deploy:
+
+| Dimension | Scorecard | Weight | Answers |
+|---|---|---|---|
+| **Build** | `application` | 25% | Is it tested? Instrumented? Does it hold up under load? |
+| **Ship** | `security` | 35% | What did we catch before it reached production? |
+| **Run** | `reliability` | 40% | Does it stay up? How fast do we notice and recover? |
+
+Fifteen metrics ship in the box, covering SLA/availability, change failure rate, MTTD/MTTR, image and source vulnerability scanning, secret detection, unit and integration coverage, and load-test behaviour. Anything expressible as a number at the end of a job, a query, or a report can feed it — a pipeline step, a nightly cron against Prometheus, a scheduled scan, a manual audit.
+
+Findings that need fixing (not just scoring) go to `POST /problem/scan-result`, which keeps them with file and line detail until a later scan reports zero, and alerts Slack when something new appears.
+
+See **[Scorecards](docs/site/scorecards.md)** for every metric's payload and thresholds, including [signals not covered yet](docs/site/scorecards.md#not-yet-covered).
+
+A stateless FastAPI service; all state lives in PostgreSQL. Metrics are scraped by Prometheus and visualized in Grafana.
 
 ## Architecture
 
@@ -92,7 +110,24 @@ The dashboard uses Grafana's Dashboard Schema V2, which the file provisioner rej
 | `application` | 25% | `libs_secrets` (15%), `libs_observability` (15%), `unique_db_user` (10%), `health_check` (10%), `unit_coverage` (20%), `integration_coverage` (20%), `stress_test` (10%) |
 | `reliability` | 40% | `sla` (20%), `change_failure_rate` (30%), `mttr` (25%), `mttd` (25%) |
 
-Weights redistribute automatically among metrics that actually ran — just omit a metric to exclude it from the calculation.
+Weights redistribute automatically among metrics that actually ran — just omit a metric to exclude it from the calculation. A scorecard is the weighted average of the metrics that reported (`Σ(score × weight) / Σ(weight)`), so a service with no DAST is judged on what it does run rather than penalised for the gap.
+
+Team and area scores are plain averages, one level at a time — apps into teams, teams into areas — so a 40-service team does not swamp a 3-service one.
+
+Full payloads and thresholds per metric: **[docs/site/scorecards.md](docs/site/scorecards.md)**.
+
+## Data sources
+
+Values can come from anywhere that produces a number:
+
+| Source | Typical metrics |
+|---|---|
+| CI/CD pipeline step | `unit_coverage`, `integration_coverage`, `image_scan`, `sast`, `secret_scan` |
+| Scheduled job against Prometheus/Grafana | `sla`, `mttd`, `mttr`, `change_failure_rate` |
+| Load-test stage or nightly run | `stress_test` |
+| Scanner or manual audit | `dast`, the boolean practice checks |
+
+Submitting a metric that is not registered in `SCORERS` returns `400 unknown metric`.
 
 ## Pipeline integration
 

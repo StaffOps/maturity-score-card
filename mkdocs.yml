@@ -1,5 +1,5 @@
 site_name: StaffOps — Maturity Score Card
-site_description: Stateless scoring service for CI/CD maturity metrics
+site_description: Engineering maturity scoring across build, ship and run — security, application and reliability scorecards
 site_url: https://staffops.github.io/maturity-score-card/
 repo_url: https://github.com/StaffOps/maturity-score-card
 repo_name: maturity-score-card
