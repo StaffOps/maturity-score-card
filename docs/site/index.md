@@ -114,7 +114,7 @@ Scores are exposed at `/metrics` in Prometheus format, scraped every 15s, and pr
 into recording rules that Grafana reads.
 
 ```
-CI/CD step · cron · scanner · manual audit
+CI/CD step · scheduled query · scanner · manual audit
     │
     ▼
 POST /score              POST /problem/scan-result

@@ -47,7 +47,7 @@ nav:
   - Reference:
       - API: reference/api.md
       - Metrics & Recording Rules: reference/metrics.md
-      - Pipeline Integration: reference/pipeline-integration.md
+      - Submitting Metrics: reference/pipeline-integration.md
 
 plugins:
   - search:

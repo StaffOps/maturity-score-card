@@ -23,7 +23,7 @@ A stateless FastAPI service; all state lives in PostgreSQL. Metrics are scraped 
 ## Architecture
 
 ```
-CI/CD step
+CI/CD step · scheduled query · scanner · manual audit
     │
     ▼
 POST /score              POST /problem/scan-result
@@ -129,9 +129,9 @@ Values can come from anywhere that produces a number:
 
 Submitting a metric that is not registered in `SCORERS` returns `400 unknown metric`.
 
-## Pipeline integration
+## Submitting metrics
 
-See **[docs/site/reference/pipeline-integration.md](docs/site/reference/pipeline-integration.md)** for one curl example per metric, including scoring rules, partial evaluation patterns, and GitHub Actions / GitLab CI snippets.
+See **[docs/site/reference/pipeline-integration.md](docs/site/reference/pipeline-integration.md)** for one curl example per metric, where each value usually comes from, scoring rules, partial evaluation patterns, and GitHub Actions / GitLab CI snippets.
 
 ## API endpoints
 
@@ -188,7 +188,7 @@ Health check.
 | Metric | Description | Labels |
 |---|---|---|
 | `maturity_score` | Computed score (0–100) | area, team, app, env, scorecard, metric, project_repo |
-| `maturity_applicable` | 1 if metric ran in this pipeline | area, team, app, env, scorecard, metric, project_repo |
+| `maturity_applicable` | 1 if the metric reported at all | area, team, app, env, scorecard, metric, project_repo |
 | `maturity_weight` | Metric weight within its scorecard | area, team, app, env, scorecard, metric, project_repo |
 | `maturity_raw` | Raw input value per field | area, team, app, env, scorecard, metric, project_repo, field |
 | `maturity_problem_count` | Open problems (0 = clean) | area, team, app, env, problem_type, severity |

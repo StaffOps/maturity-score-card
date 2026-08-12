@@ -1,6 +1,26 @@
-# Pipeline curl examples
+# Submitting metrics
 
-All examples use environment variables for context. Set them at the pipeline level:
+One curl example per metric. `POST /score` does not care what produced a value, so each
+section notes where the number usually comes from — that varies more than the examples do.
+
+| Scorecard | Usual source | Cadence |
+|---|---|---|
+| [`security`](#scorecard-security) | Pipeline step, or a scheduled scan | Per build, or nightly |
+| [`application`](#scorecard-application) | Pipeline step | Per build |
+| [`reliability`](#scorecard-reliability) | **Scheduled query against your monitoring stack** | Hourly or daily |
+
+Reliability is the one to get right. Availability, MTTR and MTTD describe how the service
+behaved over days or weeks, so submitting them from a build job means a service that stops
+deploying stops reporting — and its reliability score freezes at whatever it was on the last
+deploy. Run those from a cron or scheduler instead, on a cadence that matches the window they
+measure.
+
+!!! note "This may become automatic"
+    Pulling `sla`, `mttr` and `mttd` straight from Prometheus rather than having every adopter
+    write the same scheduled job is [specified on the roadmap](../roadmap.md#direct-prometheus-ingestion).
+    Until then, they are pushed like everything else.
+
+All examples use environment variables for context:
 
 ```bash
 MATURITY_API="https://maturity-api.internal"
@@ -303,6 +323,11 @@ Scoring: up to 40 pts for error rate, 35 pts for p95 latency, 25 pts for checks 
 ---
 
 ## Scorecard: reliability
+
+!!! warning "Submit these from a scheduler, not a build job"
+    All four describe production behaviour over a window measured in days. A service that
+    stops deploying must not stop reporting them — run these from a cron, a scheduled CI job,
+    or your monitoring stack's own automation.
 
 ### sla
 

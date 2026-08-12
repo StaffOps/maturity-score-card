@@ -252,4 +252,4 @@ dashboard cannot solve. The full picture is on the [roadmap](roadmap.md).
 Weights within a scorecard should sum to 1.0. Nothing enforces this, but the redistribution
 maths assumes it.
 
-See [Pipeline Integration](reference/pipeline-integration.md) for a curl example per metric.
+See [Submitting metrics](reference/pipeline-integration.md) for a curl example per metric and where each value usually comes from.

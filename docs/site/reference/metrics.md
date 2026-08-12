@@ -5,7 +5,7 @@
 | Metric | Description | Labels |
 |---|---|---|
 | `maturity_score` | Computed score (0–100) | area, team, app, env, scorecard, metric, project_repo |
-| `maturity_applicable` | 1 if metric ran in this pipeline | area, team, app, env, scorecard, metric, project_repo |
+| `maturity_applicable` | 1 if the metric reported at all | area, team, app, env, scorecard, metric, project_repo |
 | `maturity_weight` | Metric weight within its scorecard | area, team, app, env, scorecard, metric, project_repo |
 | `maturity_raw` | Raw input value per field | area, team, app, env, scorecard, metric, project_repo, field |
 | `maturity_problem_count` | Open problems (0 = clean) | area, team, app, env, problem_type, severity |
