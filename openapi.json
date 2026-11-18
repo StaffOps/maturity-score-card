@@ -1,0 +1,348 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Maturity Score API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/problem/scan-result": {
+      "post": {
+        "tags": [
+          "problems"
+        ],
+        "summary": "Submit Scan Result",
+        "operationId": "submit_scan_result_problem_scan_result_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemScanResult"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/score": {
+      "post": {
+        "summary": "Submit Score",
+        "operationId": "submit_score_score_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScoreRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Metrics",
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ProblemDetail": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "line": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "title": "ProblemDetail"
+      },
+      "ProblemScanResult": {
+        "properties": {
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "team": {
+            "type": "string",
+            "title": "Team"
+          },
+          "app": {
+            "type": "string",
+            "title": "App"
+          },
+          "env": {
+            "type": "string",
+            "title": "Env"
+          },
+          "problem_type": {
+            "type": "string",
+            "title": "Problem Type"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "details": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            },
+            "type": "array",
+            "title": "Details",
+            "default": []
+          },
+          "slack_channel": {
+            "type": "string",
+            "title": "Slack Channel"
+          },
+          "pipeline_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Id"
+          },
+          "pipeline_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "area",
+          "team",
+          "app",
+          "env",
+          "problem_type",
+          "severity",
+          "count",
+          "slack_channel"
+        ],
+        "title": "ProblemScanResult"
+      },
+      "ScoreRequest": {
+        "properties": {
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "team": {
+            "type": "string",
+            "title": "Team"
+          },
+          "app": {
+            "type": "string",
+            "title": "App"
+          },
+          "env": {
+            "type": "string",
+            "title": "Env"
+          },
+          "scorecard": {
+            "type": "string",
+            "title": "Scorecard"
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "raw": {
+            "type": "object",
+            "title": "Raw"
+          },
+          "pipeline_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Id"
+          },
+          "project_repo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Repo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "area",
+          "team",
+          "app",
+          "env",
+          "scorecard",
+          "metric",
+          "raw"
+        ],
+        "title": "ScoreRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

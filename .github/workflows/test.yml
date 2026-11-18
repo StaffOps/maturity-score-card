@@ -24,3 +24,11 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+      - name: OpenAPI spec is up to date
+        run: |
+          python scripts/export_openapi.py app.main:app openapi.json
+          git diff --exit-code -- openapi.json || {
+            echo "::error::openapi.json is stale; run 'make openapi' and commit the result"
+            exit 1
+          }

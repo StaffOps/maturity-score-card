@@ -33,3 +33,20 @@ spec:
   lifecycle: experimental
   owner: group:staffops
   system: maturity-score-card
+  providesApis: [maturity-score-api]
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: maturity-score-api
+  description: "Maturity Score API: score submission, problem scan results, Prometheus metrics, health"
+  annotations:
+    github.com/project-slug: StaffOps/maturity-score-card
+  tags: [openapi]
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: group:staffops
+  system: maturity-score-card
+  definition:
+    $text: ./openapi.json

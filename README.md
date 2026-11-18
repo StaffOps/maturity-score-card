@@ -135,6 +135,11 @@ See **[docs/site/reference/pipeline-integration.md](docs/site/reference/pipeline
 
 ## API endpoints
 
+The OpenAPI document is committed at [`openapi.json`](openapi.json), generated from
+code, and registered in Backstage as the `maturity-score-api` API entity. After
+changing a route or model, run `make openapi` (Docker, no running service) and commit
+the result; the `test` workflow fails when the committed spec is stale.
+
 ### `POST /score`
 
 Submits a metric result for a single app.
