@@ -8,6 +8,8 @@ metadata:
   description: "maturity-score-card (StaffOps)"
   annotations:
     github.com/project-slug: StaffOps/maturity-score-card
+    backstage.io/techdocs-ref: dir:.
+  tags: [python, fastapi, prometheus, docker, mkdocs, shell]
   links:
     - url: https://github.com/StaffOps/maturity-score-card
       title: Repository
@@ -24,9 +26,10 @@ metadata:
   description: "maturity-score-card (StaffOps)"
   annotations:
     github.com/project-slug: StaffOps/maturity-score-card
-  tags: [python]
+    backstage.io/techdocs-ref: dir:.
+  tags: [python, fastapi, prometheus]
 spec:
-  type: tool
+  type: service
   lifecycle: experimental
   owner: group:staffops
   system: maturity-score-card
