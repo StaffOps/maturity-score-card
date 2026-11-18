@@ -1,0 +1,32 @@
+# Backstage catalog: Domain (GitHub org) -> System (this repo) -> Component(s).
+# Names aligned with Dependency-Track (StaffOps/homelab-gitops helm-charts/argo-events/image-scan/catalog.yaml).
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: maturity-score-card
+  title: maturity-score-card
+  description: "maturity-score-card (StaffOps)"
+  annotations:
+    github.com/project-slug: StaffOps/maturity-score-card
+  links:
+    - url: https://github.com/StaffOps/maturity-score-card
+      title: Repository
+      icon: github
+spec:
+  owner: group:staffops
+  domain: staffops
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: maturity-score-card
+  title: maturity-score-card
+  description: "maturity-score-card (StaffOps)"
+  annotations:
+    github.com/project-slug: StaffOps/maturity-score-card
+  tags: [python]
+spec:
+  type: tool
+  lifecycle: experimental
+  owner: group:staffops
+  system: maturity-score-card
