@@ -43,8 +43,6 @@ scored metrics).
 
 ## Risks and open questions
 
-- The test coverage gate is 80 % (`pytest.ini`), below the org's 90 % rule; a local run on
-  2026-11-23 measured 82.8 % (95 tests passing).
 - No deployment: the catalog has no deploy annotations and the repo no manifests, so the service only
   runs locally (open question whether it is meant to be deployed).
 - The MkDocs site builds from `docs/site`, so this handoff is outside the site and the TechDocs build.

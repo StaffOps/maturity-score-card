@@ -15,7 +15,7 @@ docs: [README.md](README.md) and the MkDocs site in [docs/site/](docs/site/index
 Python runs in Docker (no local SDK). The repo and CI use Python 3.12:
 
 ```bash
-# Tests (pytest.ini adds coverage, fail-under 80); unit tests mock the database, no Postgres needed
+# Tests (pytest.ini adds coverage, fail-under 90); unit tests mock the database, no Postgres needed
 docker run --rm -v "$PWD:/app" -w /app python:3.12-slim sh -c \
   "pip install -q -r requirements-dev.txt && pytest"
 make openapi                                   # regenerate openapi.json (Docker)

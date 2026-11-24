@@ -29,6 +29,8 @@ No version has been tagged or released yet.
 
 ### Fixed
 
+- The coverage gate in `pytest.ini` is 90 %, matching the org standard (it was 80 %). New unit
+  tests cover the database layer and the Slack notifier; total coverage is 98 %.
 - The Grafana dashboard (Schema V2) is pushed through the Grafana resource API, since the file
   provisioner rejects it.
 
